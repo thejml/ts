@@ -11,6 +11,10 @@ Jan  7 14:43:31.832(   1.003s): 64 bytes from 172.217.12.228: icmp_seq=2 ttl=55 
 Jan  7 14:43:32.830(    998ms): 64 bytes from 172.217.12.228: icmp_seq=3 ttl=55 time=13.950 ms
 ```
 
+## Options
+For color, use -c. Defaults to off.
+To show the time between lines, use -t. Defaults to only showing the date/timestamp.
+
 ## Building
 With a properly setup go lang GOPATH:
 
