@@ -13,18 +13,22 @@ import (
 var slowMS *int
 var useColor *bool
 var lineTime *bool
+var stripe *bool
 
 func init() {
+    slowMS = flag.Int("m", 2, "If using color, Time in MS to color slow requests in Red")
     useColor = flag.Bool("c", false, "Use Color")
-    slowMS = flag.Int("s", 2, "If using color, Time in MS to color slow requests in Red")
     lineTime = flag.Bool("t", false, "Show time between lines")
-	flag.Parse()
+    stripe   = flag.Bool("s", false, "Use a striped output")
+    flag.Parse()
 }
 
 func main() {
     var ts time.Time
     var lastStamp time.Time
     var timeOut string
+    var lineCount int
+    var bg uint8
     var au aurora.Aurora
     au = aurora.NewAurora(*useColor)
 
@@ -45,6 +49,7 @@ func main() {
 	}
 
 	reader := bufio.NewScanner(os.Stdin)
+    lineCount = 0
     lastStamp=time.Now()
 	// Read in from the pipe until we can't.
 	for reader.Scan() {
@@ -52,11 +57,21 @@ func main() {
         if *lineTime {
             ts=time.Now()
             timeOut=fmt.Sprintf("(%7s): ",ts.Sub(lastStamp).Truncate(time.Millisecond))
-            fmt.Printf("%s %s %s\n",au.BrightBlack(ts.Format(time.StampMilli)),au.Green(timeOut),input) 
+            if *stripe {
+                if lineCount%2==0 {
+                    bg=3
+                } else {
+                    bg=0
+                }
+                fmt.Printf("%s %s %s\n",au.BrightBlack(ts.Format(time.StampMilli)).BgGray(bg),au.Green(timeOut).BgGray(bg),au.BgGray(bg,input)) 
+            } else {
+                fmt.Printf("%s %s %s\n",au.BrightBlack(ts.Format(time.StampMilli)),au.Green(timeOut),input) 
+            }
             lastStamp=ts
         } else {
             ts=time.Now()
             fmt.Printf("%s %s\n",au.BrightBlack(ts.Format(time.StampMilli)),input) 
         }
+        lineCount++
     }
 }
